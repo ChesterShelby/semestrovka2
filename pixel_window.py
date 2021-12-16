@@ -76,7 +76,7 @@ class PixelBattle(QMainWindow):
         self.game_size = (50, 50)
         self.x = 0
         self.y = 0
-        self.setWindowIcon(QIcon('icon.png'))
+        self.setWindowIcon(QIcon('icon_upper_left_corner.png'))
         uic.loadUi('pixel_battle.ui', self)
 
         self.key_pressed_count = 0
