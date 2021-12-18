@@ -5,71 +5,22 @@ import pickle
 from time import sleep
 
 from Player import Player
-from pixel_battle_window import Ui_MainWindow
+
 
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QLineEdit, QLayout, QMessageBox
 from PyQt5.QtGui import QIcon
-from PyQt5 import uic   # ?
+from PyQt5 import uic
 from PyQt5.QtCore import QThread, pyqtSignal, QObject, pyqtSlot, Qt
 
-
-SIZE_OF_PART = 1024
-
-
-class ParallelConnection(QThread, Ui_MainWindow):
-    sendPlayerObject = pyqtSignal(object)
-
-    def __init__(self, ip, port, player):
-        super().__init__()
-
-        self.sock = socket.socket()
-        self.sock.connect((ip, port))
-        self.player = player
-
-    def send(self):
-        bytes_array = pickle.dumps(self.player)
-        self.sock.send(bytes_array)
-        bytes_array = self.recieve()
-        sleep(0.2)
-
-    def recieve(self):
-        data = self.sock.recv(SIZE_OF_PART)
-        another_player: Player = pickle.loads(data)
-
-        self.sendPlayerObject.emit(another_player)
-
-    def run(self):
-        while True:
-            self.send()
-
-    def change_player_state(self, x, y):
-        self.player.x = x
-        self.player.y = y
-        self.player.c = None
-
-
-class ParallelCounter(QThread):
-    sendTextSignal = pyqtSignal(str)
-
-    def __init__(self, function):
-        super().__init__()
-        self.sendTextSignal.connect(function)
-        self.key_pressed_count = 0
-
-    def run(self):
-        i = 0
-        while i < 10e6:
-            self.sendTextSignal.emit(f"Сейчас я {i}\nНажали {self.key_pressed_count} раз!")
-            QThread.msleep(200)
-            i += 1
-
-    def set_pressed_count(self, count):
-        self.key_pressed_count = count
+"""
+Кароче, я удалил все лишние классы, чтобы они тебе не мешали разобраться в коде, впринципе они(эти классы)
+с пояснениями есть в примере кода препода. Здесь оставил только класс, отвечающий за игру, похже добавлю возможность 
+скрина, вроде это не сложно. Оставил тебе коментарии, чтобы было проще разобраться. Так же потом хотел добавить 
+"стерку", но это не обязательно. Если что пиши)
+"""
 
 
 class PixelBattle(QMainWindow):
-
-    keyPressedSignal = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
@@ -77,10 +28,10 @@ class PixelBattle(QMainWindow):
         self.x = 0
         self.y = 0
         self.setWindowIcon(QIcon('icon_upper_left_corner.png'))
-        uic.loadUi('pixel_battle.ui', self)
+        uic.loadUi('pixel_battle.ui', self)     # перетягивает все с шаблона, этот же шаблон,
+        # но в .py есть в pixel_battle_window.py
 
         self.key_pressed_count = 0
-        # self.keyPressedSignal.connect(self.moving_by_key)
 
         self.create_grind()
         self.set_color()
@@ -113,20 +64,23 @@ class PixelBattle(QMainWindow):
         self.black.clicked.connect(lambda: self.set_color(self.black.text()))
 
     def set_color(self, *args):
-        if args == (): # проверяет есть ли в args что-нибудь, для случаев, когда игрок начал рисовть не выбрав цвет
+        if args == ():  # проверяет есть ли в args что-нибудь, для случаев, когда игрок начал рисовть не выбрав цвет
             self.color = 'rgb(0, 0, 0)'
         else:
             self.color = args
 
     def button_pushed(self, obj, x, y):
         if self.color != 'rgb(0, 0, 0)':
-            clr = list(map(''.join, self.color)) # превращает tuple в list
+            clr = list(map(''.join, self.color))    # превращает tuple в массив с 1 элементом, цветом кнопки
         else:
             clr = self.color
-        self.btns[x][y].setStyleSheet(f"background-color: {clr[0]};")
+        self.btns[x][y].setText(f'{clr}')   # изменяется текст в "пикселе"
+        self.btns[x][y].setStyleSheet(f"background-color: {clr[0]}; color: {clr[0]}")   # меняется фон и цвет текста
+        # print(self.btns[x][y].text())   # можешь посмотреть как выводится цвет
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = PixelBattle()
     sys.exit(app.exec_())
+

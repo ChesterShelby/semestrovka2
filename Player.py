@@ -6,3 +6,4 @@ class Player:
 
 	def __str__(self):
 		return f"X = {self.x}, Y = {self.y}"
+
