@@ -1,14 +1,18 @@
 import sys
+import os
 import numpy as np
 import socket
 import pickle
+import re
 from time import sleep
+from PIL import Image
+import matplotlib.pyplot as plt
 
 from Player import Player
 
 
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QLineEdit, QLayout, QMessageBox
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, pyqtSignal, QObject, pyqtSlot, Qt
 
@@ -44,12 +48,14 @@ class PixelBattle(QMainWindow):
         # создание сетки кнопок
         for i in range(self.game_size[0]):
             for j in range(self.game_size[1]):
-                btn = QPushButton(None, self.game_frame)
+                btn = QPushButton('rgb(255, 255, 255)', self.game_frame)
                 btn.setGeometry(i * 10, j * 10, 12, 12)
                 btn.clicked.connect(lambda state, obj=btn, x=i, y=j: self.button_pushed(obj, x, y))
+                btn.setStyleSheet("background-color: rgb(255, 255, 255); color: rgb(255, 255, 255);")
                 self.btns[i][j] = btn
         self.show()
         self.push_color_btn()
+        self.save_btn_pushed()
 
     def push_color_btn(self):
 
@@ -77,6 +83,23 @@ class PixelBattle(QMainWindow):
         self.btns[x][y].setText(f'{clr}')   # изменяется текст в "пикселе"
         self.btns[x][y].setStyleSheet(f"background-color: {clr[0]}; color: {clr[0]}")   # меняется фон и цвет текста
         # print(self.btns[x][y].text())   # можешь посмотреть как выводится цвет
+
+    def save_btn_pushed(self):
+        self.save_pic.clicked.connect(lambda: self.save_picture())
+
+    def save_picture(self):
+        pix_ar = np.zeros(self.game_size, dtype=list)
+        for i in range(self.game_size[0]):
+            for j in range(self.game_size[1]):
+                if self.btns[i][j].text() == 'rgb(0, 0, 0)' or self.btns[i][j].text() == 'rgb(255, 255, 255)':
+                    pix = self.btns[i][j].text()
+                else:
+                    pix = self.btns[i][j].text()[2:-2]
+                pix_int = re.findall(r'\d*', pix)
+                pix_int_arr = [float(pix_int[4]), float(pix_int[7]), float(pix_int[10])]
+                pix_ar[i][j] = pix_int_arr
+        print(pix_ar[-1][-1])
+        # plt.imsave('filename', pix_ar, cmap='Greys')
 
 
 if __name__ == '__main__':
