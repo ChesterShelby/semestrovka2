@@ -4,10 +4,11 @@ import numpy as np
 import socket
 import pickle
 import re
+import PIL
 from time import sleep
 from PIL import Image
+from matplotlib import cm
 import matplotlib.pyplot as plt
-
 from Player import Player
 
 
@@ -88,7 +89,9 @@ class PixelBattle(QMainWindow):
         self.save_pic.clicked.connect(lambda: self.save_picture())
 
     def save_picture(self):
-        pix_ar = np.zeros(self.game_size, dtype=list)
+        pix_ar = np.zeros(self.game_size, dtype=[])
+        print(1)
+        a = []
         for i in range(self.game_size[0]):
             for j in range(self.game_size[1]):
                 if self.btns[i][j].text() == 'rgb(0, 0, 0)' or self.btns[i][j].text() == 'rgb(255, 255, 255)':
@@ -96,10 +99,17 @@ class PixelBattle(QMainWindow):
                 else:
                     pix = self.btns[i][j].text()[2:-2]
                 pix_int = re.findall(r'\d*', pix)
-                pix_int_arr = [float(pix_int[4]), float(pix_int[7]), float(pix_int[10])]
-                pix_ar[i][j] = pix_int_arr
-        print(pix_ar[-1][-1])
-        # plt.imsave('filename', pix_ar, cmap='Greys')
+                pix_int_arr = np.array([int(pix_int[4]), int(pix_int[7]), int(pix_int[10])])
+                print(pix_int_arr)
+                # pix_ar[i][j] = pix_int_arr
+                a.append(pix_int_arr)
+        print(2)
+        # print(pix_ar)
+        # print(pix_ar[-1][-1])
+        b = np.array(a)
+        # print(b)
+        im = plt.imsave('filename.png', b, cmap='Greys')
+        im.show()
 
 
 if __name__ == '__main__':
