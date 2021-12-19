@@ -89,27 +89,16 @@ class PixelBattle(QMainWindow):
         self.save_pic.clicked.connect(lambda: self.save_picture())
 
     def save_picture(self):
-        pix_ar = np.zeros(self.game_size, dtype=[])
-        print(1)
-        a = []
+        pix_ar = np.zeros(shape=(self.game_size[0], self.game_size[1], 3), dtype=np.uint8)
         for i in range(self.game_size[0]):
             for j in range(self.game_size[1]):
                 if self.btns[i][j].text() == 'rgb(0, 0, 0)' or self.btns[i][j].text() == 'rgb(255, 255, 255)':
                     pix = self.btns[i][j].text()
                 else:
                     pix = self.btns[i][j].text()[2:-2]
-                pix_int = re.findall(r'\d*', pix)
-                pix_int_arr = np.array([int(pix_int[4]), int(pix_int[7]), int(pix_int[10])])
-                print(pix_int_arr)
-                # pix_ar[i][j] = pix_int_arr
-                a.append(pix_int_arr)
-        print(2)
-        # print(pix_ar)
-        # print(pix_ar[-1][-1])
-        b = np.array(a)
-        # print(b)
-        im = plt.imsave('filename.png', b, cmap='Greys')
-        im.show()
+                pix_ar[i][j] = np.array(re.findall(r'\d+', pix), dtype=np.uint8)
+        image = Image.fromarray(pix_ar)
+        image.save("image.jpg")
 
 
 if __name__ == '__main__':
