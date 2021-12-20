@@ -88,9 +88,9 @@ class PixelBattle(QMainWindow):
                     pix = self.btns[i][j].text()
                 else:
                     pix = self.btns[i][j].text()[2:-2]
-                pix_ar[i][j] = np.array(re.findall(r'\d+', pix), dtype=np.uint8)
+                pix_ar[j][i] = np.array(re.findall(r'\d+', pix), dtype=np.uint8)
         image = Image.fromarray(pix_ar)
-        image = image.resize((200, 200), resample=Image.NEAREST)
+        image = image.resize((500, 500), resample=Image.NEAREST)
         tm = time.asctime()
         tm2 = tm.replace(':', '_')
         tm3 = tm2.replace(' ', '_')
