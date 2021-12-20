@@ -1,21 +1,13 @@
 import sys
-import os
+import time
 import numpy as np
-import socket
-import pickle
 import re
-import PIL
-from time import sleep
+
 from PIL import Image
-from matplotlib import cm
-import matplotlib.pyplot as plt
-from Player import Player
 
-
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QLineEdit, QLayout, QMessageBox
-from PyQt5.QtGui import QIcon, QImage, QPixmap
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton
+from PyQt5.QtGui import QIcon
 from PyQt5 import uic
-from PyQt5.QtCore import QThread, pyqtSignal, QObject, pyqtSlot, Qt
 
 """
 Кароче, я удалил все лишние классы, чтобы они тебе не мешали разобраться в коде, впринципе они(эти классы)
@@ -98,7 +90,11 @@ class PixelBattle(QMainWindow):
                     pix = self.btns[i][j].text()[2:-2]
                 pix_ar[i][j] = np.array(re.findall(r'\d+', pix), dtype=np.uint8)
         image = Image.fromarray(pix_ar)
-        image.save("image.jpg")
+        image = image.resize((200, 200), resample=Image.NEAREST)
+        tm = time.asctime()
+        tm2 = tm.replace(':', '_')
+        tm3 = tm2.replace(' ', '_')
+        image.save(f"{tm3}.jpg")
 
 
 if __name__ == '__main__':
