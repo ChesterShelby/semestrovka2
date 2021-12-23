@@ -65,13 +65,11 @@ class PixelBattle(QMainWindow):
             self.color = ['black']
         else:
             self.color = args
-        print(list(self.color))
 
     def button_pushed(self, obj, x, y):
         clr = self.color[0]
         self.btns[x][y].setText(f'{clr}')   # изменяется текст в "пикселе"
         self.btns[x][y].setStyleSheet(f"background-color: {clr}; color: {clr}")
-        print(self.btns[x][y].text())
 
 
     def save_btn_pushed(self):
