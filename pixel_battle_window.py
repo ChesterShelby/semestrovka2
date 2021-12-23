@@ -49,48 +49,48 @@ class Ui_MainWindow(object):
         self.btn_connect.setObjectName("btn_connect")
         self.red = QtWidgets.QPushButton(self.centralwidget)
         self.red.setGeometry(QtCore.QRect(10, 540, 30, 30))
-        self.red.setStyleSheet("background-color: rgb(255, 0, 0);\n"
-"color: rgb(255, 0, 0);")
+        self.red.setStyleSheet("background-color: red;\n"
+"color: red;")
         self.red.setObjectName("red")
         self.orange = QtWidgets.QPushButton(self.centralwidget)
         self.orange.setGeometry(QtCore.QRect(40, 540, 30, 30))
-        self.orange.setStyleSheet("background-color: rgb(255, 85, 0);\n"
-"color: rgb(255, 85, 0);")
+        self.orange.setStyleSheet("background-color: orange;\n"
+"color: orange;")
         self.orange.setObjectName("orange")
         self.yellow = QtWidgets.QPushButton(self.centralwidget)
         self.yellow.setGeometry(QtCore.QRect(70, 540, 30, 30))
-        self.yellow.setStyleSheet("background-color: rgb(255, 255, 0);\n"
-"color: rgb(255, 255, 0);")
+        self.yellow.setStyleSheet("background-color: yellow;\n"
+"color: yellow;")
         self.yellow.setObjectName("yellow")
         self.green = QtWidgets.QPushButton(self.centralwidget)
         self.green.setGeometry(QtCore.QRect(100, 540, 30, 30))
-        self.green.setStyleSheet("background-color: rgb(0, 255, 0);\n"
-"color: rgb(0, 255, 0);")
+        self.green.setStyleSheet("background-color: green;\n"
+"color: green;")
         self.green.setObjectName("green")
         self.blue = QtWidgets.QPushButton(self.centralwidget)
         self.blue.setGeometry(QtCore.QRect(130, 540, 30, 30))
-        self.blue.setStyleSheet("background-color: rgb(0, 255, 255);\n"
-"color: rgb(0, 255, 255);")
+        self.blue.setStyleSheet("background-color: cyan;\n"
+"color: cyan;")
         self.blue.setObjectName("blue")
         self.dark_blue = QtWidgets.QPushButton(self.centralwidget)
         self.dark_blue.setGeometry(QtCore.QRect(160, 540, 30, 30))
-        self.dark_blue.setStyleSheet("background-color: rgb(0, 0, 255);\n"
-"color: rgb(0, 0, 255);")
+        self.dark_blue.setStyleSheet("background-color: blue;\n"
+"color: blue;")
         self.dark_blue.setObjectName("dark_blue")
         self.purple = QtWidgets.QPushButton(self.centralwidget)
         self.purple.setGeometry(QtCore.QRect(190, 540, 30, 30))
-        self.purple.setStyleSheet("background-color: rgb(170, 0, 255);\n"
-"color: rgb(170, 0, 255);")
+        self.purple.setStyleSheet("background-color: purple;\n"
+"color: purple;")
         self.purple.setObjectName("purple")
         self.white = QtWidgets.QPushButton(self.centralwidget)
         self.white.setGeometry(QtCore.QRect(220, 540, 30, 30))
-        self.white.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"color: rgb(255, 255, 255);")
+        self.white.setStyleSheet("background-color: white;\n"
+"color: white;")
         self.white.setObjectName("white")
         self.black = QtWidgets.QPushButton(self.centralwidget)
         self.black.setGeometry(QtCore.QRect(250, 540, 30, 30))
-        self.black.setStyleSheet("background-color: rgb(0, 0, 0);\n"
-"color: rgb(0, 0, 0);")
+        self.black.setStyleSheet("background-color: black;\n"
+"color: black;")
         self.black.setObjectName("black")
         self.save_pic = QtWidgets.QPushButton(self.centralwidget)
         self.save_pic.setGeometry(QtCore.QRect(500, 540, 181, 31))
@@ -108,15 +108,15 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.btn_connect.setText(_translate("MainWindow", "Connect!"))
-        self.red.setText(_translate("MainWindow", "rgb(255, 0, 0)"))
-        self.orange.setText(_translate("MainWindow", "rgb(255, 85, 0)"))
-        self.yellow.setText(_translate("MainWindow", "rgb(255, 255, 0)"))
-        self.green.setText(_translate("MainWindow", "rgb(0, 255, 0)"))
-        self.blue.setText(_translate("MainWindow", "rgb(0, 255, 255)"))
-        self.dark_blue.setText(_translate("MainWindow", " rgb(0, 0, 255)"))
-        self.purple.setText(_translate("MainWindow", "rgb(170, 0, 255)"))
-        self.white.setText(_translate("MainWindow", "rgb(255, 255, 255)"))
-        self.black.setText(_translate("MainWindow", "rgb(0, 0, 0)"))
+        self.red.setText(_translate("MainWindow", "red"))
+        self.orange.setText(_translate("MainWindow", "orange"))
+        self.yellow.setText(_translate("MainWindow", "yellow"))
+        self.green.setText(_translate("MainWindow", "green"))
+        self.blue.setText(_translate("MainWindow", "cyan"))
+        self.dark_blue.setText(_translate("MainWindow", "blue"))
+        self.purple.setText(_translate("MainWindow", "purple"))
+        self.white.setText(_translate("MainWindow", "white"))
+        self.black.setText(_translate("MainWindow", "black"))
         self.save_pic.setText(_translate("MainWindow", "Save picture"))
 
 
@@ -128,4 +128,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-

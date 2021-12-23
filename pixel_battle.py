@@ -2,19 +2,17 @@ import sys
 import time
 import numpy as np
 import re
-
+import socket
+import pickle
+from time import sleep
 from PIL import Image
 
+# from Player import Player
+
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
-
-"""
-Кароче, я удалил все лишние классы, чтобы они тебе не мешали разобраться в коде, впринципе они(эти классы)
-с пояснениями есть в примере кода препода. Здесь оставил только класс, отвечающий за игру, похже добавлю возможность 
-скрина, вроде это не сложно. Оставил тебе коментарии, чтобы было проще разобраться. Так же потом хотел добавить 
-"стерку", но это не обязательно. Если что пиши)
-"""
 
 
 class PixelBattle(QMainWindow):
@@ -41,10 +39,10 @@ class PixelBattle(QMainWindow):
         # создание сетки кнопок
         for i in range(self.game_size[0]):
             for j in range(self.game_size[1]):
-                btn = QPushButton('rgb(255, 255, 255)', self.game_frame)
+                btn = QPushButton('white', self.game_frame)
                 btn.setGeometry(i * 10, j * 10, 12, 12)
                 btn.clicked.connect(lambda state, obj=btn, x=i, y=j: self.button_pushed(obj, x, y))
-                btn.setStyleSheet("background-color: rgb(255, 255, 255); color: rgb(255, 255, 255);")
+                btn.setStyleSheet("background-color: white; color: white;")
                 self.btns[i][j] = btn
         self.show()
         self.push_color_btn()
@@ -64,18 +62,17 @@ class PixelBattle(QMainWindow):
 
     def set_color(self, *args):
         if args == ():  # проверяет есть ли в args что-нибудь, для случаев, когда игрок начал рисовть не выбрав цвет
-            self.color = 'rgb(0, 0, 0)'
+            self.color = ['black']
         else:
             self.color = args
+        print(list(self.color))
 
     def button_pushed(self, obj, x, y):
-        if self.color != 'rgb(0, 0, 0)':
-            clr = list(map(''.join, self.color))    # превращает tuple в массив с 1 элементом, цветом кнопки
-        else:
-            clr = self.color
+        clr = self.color[0]
         self.btns[x][y].setText(f'{clr}')   # изменяется текст в "пикселе"
-        self.btns[x][y].setStyleSheet(f"background-color: {clr[0]}; color: {clr[0]}")   # меняется фон и цвет текста
-        # print(self.btns[x][y].text())   # можешь посмотреть как выводится цвет
+        self.btns[x][y].setStyleSheet(f"background-color: {clr}; color: {clr}")
+        print(self.btns[x][y].text())
+
 
     def save_btn_pushed(self):
         self.save_pic.clicked.connect(lambda: self.save_picture())
@@ -84,17 +81,31 @@ class PixelBattle(QMainWindow):
         pix_ar = np.zeros(shape=(self.game_size[0], self.game_size[1], 3), dtype=np.uint8)
         for i in range(self.game_size[0]):
             for j in range(self.game_size[1]):
-                if self.btns[i][j].text() == 'rgb(0, 0, 0)' or self.btns[i][j].text() == 'rgb(255, 255, 255)':
-                    pix = self.btns[i][j].text()
-                else:
-                    pix = self.btns[i][j].text()[2:-2]
-                pix_ar[j][i] = np.array(re.findall(r'\d+', pix), dtype=np.uint8)
+                pix = self.btns[i][j].text()
+                pix_ar[j][i] = self.pix_color(pix)
         image = Image.fromarray(pix_ar)
         image = image.resize((500, 500), resample=Image.NEAREST)
         tm = time.asctime()
         tm2 = tm.replace(':', '_')
         tm3 = tm2.replace(' ', '_')
         image.save(f"{tm3}.jpg")
+
+    def pix_color(self, pix):
+        colors = {
+                    'black': [0, 0, 0],
+                    'white': [255, 255, 255],
+                    'red': [255, 0, 0],
+                    'orange': [255, 165, 0],
+                    'yellow': [255, 255, 0],
+                    'green': [0, 255, 0],
+                    'cyan': [0, 255, 255],
+                    'blue': [0, 0, 255],
+                    'purple': [128, 0, 128]
+        }
+        for color in colors.keys():
+            if pix == color:
+                pix_rgb = np.array(colors.get(pix), dtype=np.uint8)
+                return pix_rgb
 
 
 if __name__ == '__main__':
