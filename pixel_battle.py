@@ -29,25 +29,27 @@ class ParallelConnection(QThread):
 
     def send(self):
         bytes_array = pickle.dumps(self.player)
-        print(bytes_array)
         self.sock.send(bytes_array)
-        bytes_array = self.recieve()
+        self.recieve()
         sleep(200)
 
     def recieve(self):
         data = self.sock.recv(SIZE_OF_PART)
-        another_player: Player = pickle.loads(data)
+        another_player = pickle.loads(data)
         print(f'Получил вот это {another_player}')
-        sleep(200)
         self.sendPlayerObject.emit(another_player)
+        return another_player
 
     def run(self):
         while True:
             self.send()
 
-    def change_player(self, btn, clr):
-        self.player.btn = btn
+    def change_player(self, x, y, clr):
+        print('Пора менять знаения')
+        self.player.x = x
+        self.player.y = y
         self.player.clr = clr
+        print('lol', self.player.x, self.player.y, self.player.clr)
 
 
 class PixelBattle(QMainWindow):
@@ -61,10 +63,10 @@ class PixelBattle(QMainWindow):
         self.y = 0
         self.setWindowIcon(QIcon('icon_upper_left_corner.png'))
         uic.loadUi('pixel_battle.ui', self)
-        self.keyPressedSignal.connect(self.player_draw)
+        self.player = Player(0, 0, 'black')
+
         self.init_gui()
         self.set_color()
-        self.player = Player(None, None)
         self.colors = {
                     'black': [0, 0, 0],
                     'white': [255, 255, 255],
@@ -89,7 +91,7 @@ class PixelBattle(QMainWindow):
             for j in range(self.game_size[1]):
                 btn = QPushButton('white', self.game_frame)
                 btn.setGeometry(i * 10, j * 10, 12, 12)
-                btn.clicked.connect(lambda state, obj=btn, x=i, y=j: self.button_pushed(obj, x, y))
+                btn.clicked.connect(lambda state, x=i, y=j: self.button_pushed(x, y))
                 btn.setStyleSheet("background-color: white; color: white;")
                 self.btns[i][j] = btn
 
@@ -104,25 +106,21 @@ class PixelBattle(QMainWindow):
         self.player_parallel.start()
 
         self.player_parallel.sendPlayerObject.connect(self.player_draw)
-
-        print(ip, port)
+        print('ip, port =', ip, port)
 
     def keyPressEvent(self, event):
         self.keyPressedSignal.emit(event.key())
 
-    @pyqtSlot(str)
-    def add_text(self, text):
-        self.result_field.setText(text)
-
     @pyqtSlot(object)
     def player_draw(self, another_player):
-        print('kek')
+        print('kek', type(another_player))
 
-        btn = another_player[0].btn
-        clr = another_player[0].clr
-        btn.setText(f'{clr}')  # изменяется текст в "пикселе"
-        btn.setStyleSheet(f"background-color: {clr}; color: {clr}")
-        self.player_parallel.change_player(btn, clr)
+        x = another_player.x
+        y = another_player.y
+        clr = another_player.clr
+        self.btns[x][y].setText(f'{clr}')  # изменяется текст в "пикселе"
+        self.btns[x][y].setStyleSheet(f"background-color: {clr}; color: {clr}")
+        self.player_parallel.change_player(x, y, clr)
         print('Закрасили пиксель')
 
     def push_color_btn(self):
@@ -144,8 +142,15 @@ class PixelBattle(QMainWindow):
             self.color = args
         print(f'Выбран цвет {self.color[0]}')
 
-    def button_pushed(self, obj, x, y):
-        self.player_parallel.change_player(self.btns[x][y], self.color[0])
+    def button_pushed(self, x, y):
+        self.player_parallel.change_player(x, y, self.color[0])
+        print(x, y, self.color[0], 'Вот это идет в Player')
+        self.draw_in_gui(x, y)
+
+    def draw_in_gui(self, x, y):
+        clr = self.color[0]
+        self.btns[x][y].setText(f'{clr}')  # изменяется текст в "пикселе"
+        self.btns[x][y].setStyleSheet(f"background-color: {clr}; color: {clr}")
 
     def save_btn_pushed(self):
         self.save_pic.clicked.connect(lambda: self.save_picture())

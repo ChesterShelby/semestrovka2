@@ -66,10 +66,7 @@ class Server:
 
     def recv_and_share(self, client, new_client=False):
         try:
-            ############
             if response := client.connection.recv(BUFFER):
-                player = pickle.loads(response)
-                print(f'Player = {player}')
                 self.send_all_bytes(client, response)
                 print('Ну я ее вызвал дальше ничго не происходит')
             else:
@@ -81,19 +78,20 @@ class Server:
             return True
 
     def client_loop(self, client):
-        while True:
-            self.recv_and_share(client)
+        while self.recv_and_share(client):
+            pass
 
     def send_all_bytes(self, from_client, bytes_array):
         print(f'Получил ща отправлю всем {pickle.loads(bytes_array)}')
         for client in self.clients:
-            print('прошел')
-            client.connection.send(bytes_array)
-            print(f'Отправил {client}')
+            if client != from_client:
+                print('прошел')
+                client.connection.send(bytes_array)
+                print(f'Отправил {client}')
 
     def close_client(self, client):
         self.clients.remove(client)
         client.connection.close()
 
 
-server = Server('localhost', 2048)
+server = Server('localhost', 8082)
