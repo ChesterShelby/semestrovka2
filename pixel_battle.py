@@ -29,14 +29,16 @@ class ParallelConnection(QThread):
 
     def send(self):
         bytes_array = pickle.dumps(self.player)
+        print(bytes_array)
         self.sock.send(bytes_array)
         bytes_array = self.recieve()
-        sleep(0.3)
+        sleep(200)
 
     def recieve(self):
         data = self.sock.recv(SIZE_OF_PART)
         another_player: Player = pickle.loads(data)
-
+        print(f'Получил вот это {another_player}')
+        sleep(200)
         self.sendPlayerObject.emit(another_player)
 
     def run(self):
