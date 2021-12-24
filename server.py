@@ -1,8 +1,6 @@
 import socket
-import pickle
 from threading import Thread
-from pixel_battle import PixelBattle
-from Player import Player
+
 
 BUFFER = 1024
 

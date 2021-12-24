@@ -8,8 +8,8 @@ from PIL import Image
 
 from Player import Player
 
-from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot, Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QMessageBox
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
 
