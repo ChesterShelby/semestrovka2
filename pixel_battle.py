@@ -29,16 +29,18 @@ class ParallelConnection(QThread):
 
     def send(self):
         bytes_array = pickle.dumps(self.player)
+        print(self.player.clr, self.player.x, self.player.y, 'was send on server')
         self.sock.send(bytes_array)
         self.recieve()
-        sleep(200)
+        sleep(0.2)
 
     def recieve(self):
-        data = self.sock.recv(SIZE_OF_PART)
-        another_player = pickle.loads(data)
-        print(f'Получил вот это {another_player}')
-        self.sendPlayerObject.emit(another_player)
-        return another_player
+        while True:
+            data = self.sock.recv(SIZE_OF_PART)
+            another_player = pickle.loads(data)
+            print(f'Получил вот это {another_player}')
+            self.sendPlayerObject.emit(another_player)
+            return another_player
 
     def run(self):
         while True:
@@ -145,12 +147,12 @@ class PixelBattle(QMainWindow):
     def button_pushed(self, x, y):
         self.player_parallel.change_player(x, y, self.color[0])
         print(x, y, self.color[0], 'Вот это идет в Player')
-        self.draw_in_gui(x, y)
-
-    def draw_in_gui(self, x, y):
-        clr = self.color[0]
-        self.btns[x][y].setText(f'{clr}')  # изменяется текст в "пикселе"
-        self.btns[x][y].setStyleSheet(f"background-color: {clr}; color: {clr}")
+        # self.draw_in_gui(x, y)
+    #
+    # def draw_in_gui(self, x, y):
+    #     clr = self.color[0]
+    #     self.btns[x][y].setText(f'{clr}')  # изменяется текст в "пикселе"
+    #     self.btns[x][y].setStyleSheet(f"background-color: {clr}; color: {clr}")
 
     def save_btn_pushed(self):
         self.save_pic.clicked.connect(lambda: self.save_picture())
