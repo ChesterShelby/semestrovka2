@@ -147,12 +147,6 @@ class PixelBattle(QMainWindow):
     def button_pushed(self, x, y):
         self.player_parallel.change_player(x, y, self.color[0])
         print(x, y, self.color[0], 'Вот это идет в Player')
-        # self.draw_in_gui(x, y)
-    #
-    # def draw_in_gui(self, x, y):
-    #     clr = self.color[0]
-    #     self.btns[x][y].setText(f'{clr}')  # изменяется текст в "пикселе"
-    #     self.btns[x][y].setStyleSheet(f"background-color: {clr}; color: {clr}")
 
     def save_btn_pushed(self):
         self.save_pic.clicked.connect(lambda: self.save_picture())
