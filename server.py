@@ -58,9 +58,7 @@ class Server:
             client = Client()
             client.address = address
             client.connection = connection
-            print(f'Адресс = {client.address}, Connection = {client.connection}')
             self.clients.add(client)
-
             print(f'Connected {address}')
             Thread(target=self.client_loop, args=(client,)).start()
 
@@ -68,7 +66,6 @@ class Server:
         try:
             if response := client.connection.recv(BUFFER):
                 self.send_all_bytes(client, response)
-                print('Ну я ее вызвал дальше ничго не происходит')
             else:
                 raise Exception('Client disconnected')
         except Exception:
@@ -82,12 +79,9 @@ class Server:
             pass
 
     def send_all_bytes(self, from_client, bytes_array):
-        print(f'Получил ща отправлю всем {pickle.loads(bytes_array)}')
         for client in self.clients:
             if client != from_client:
-                print('прошел')
                 client.connection.send(bytes_array)
-                print(f'Отправил {client}')
 
     def close_client(self, client):
         self.clients.remove(client)
