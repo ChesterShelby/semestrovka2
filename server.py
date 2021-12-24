@@ -81,8 +81,8 @@ class Server:
             return True
 
     def client_loop(self, client):
-        while self.recv_and_share(client):
-            pass
+        while True:
+            self.recv_and_share(client)
 
     def send_all_bytes(self, from_client, bytes_array):
         print(f'Получил ща отправлю всем {pickle.loads(bytes_array)}')
