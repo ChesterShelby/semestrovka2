@@ -1,6 +1,7 @@
 import socket
 from threading import Thread
 
+
 BUFFER = 1024
 
 
@@ -44,35 +45,25 @@ class Server:
         self.clients = set()
         self.sock = socket.socket()
         self.sock.bind((ip, port))
-
         self.listen()
 
     def listen(self):
         print('Start')
-        self.sock.listen(2)
+        self.sock.listen(5)
         while True:
             connection, address = self.sock.accept()
 
             client = Client()
             client.address = address
             client.connection = connection
-
             self.clients.add(client)
-
             print(f'Connected {address}')
             Thread(target=self.client_loop, args=(client,)).start()
 
     def recv_and_share(self, client, new_client=False):
         try:
             if response := client.connection.recv(BUFFER):
-                response = response.decode('UTF-8')
-                if new_client:
-                    client.name = response
-                    print(f'new client {client.address} with name: {response}')
-                    self.send_all(client, 'Привет всем, я новенький!')
-                else:
-                    print(f'from client {client.address} recieved: {response}')
-                    self.send_all(client, response)
+                self.send_all_bytes(client, response)
             else:
                 raise Exception('Client disconnected')
         except Exception:
@@ -82,26 +73,17 @@ class Server:
             return True
 
     def client_loop(self, client):
-        """
-
-        Args:
-            client (Client):
-
-        Returns:
-
-        """
-        self.recv_and_share(client, new_client=True)
         while self.recv_and_share(client):
             pass
 
-    def send_all(self, from_client, text):
+    def send_all_bytes(self, from_client, bytes_array):
         for client in self.clients:
             if client != from_client:
-                client.connection.send(f"[{from_client.name}]: {text}".encode('UTF-8'))
+                client.connection.send(bytes_array)
 
     def close_client(self, client):
         self.clients.remove(client)
         client.connection.close()
 
 
-server = Server('localhost', 8081)
+server = Server('localhost', 8082)

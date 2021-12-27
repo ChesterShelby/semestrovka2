@@ -1,21 +1,58 @@
 import sys
 import time
 import numpy as np
-import re
 import socket
 import pickle
 from time import sleep
 from PIL import Image
 
-# from Player import Player
+from Player import Player
 
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
 
+SIZE_OF_PART = 1024
+
+
+class ParallelConnection(QThread):
+
+    sendPlayerObject = pyqtSignal(object)
+
+    def __init__(self, ip, port, player: Player):
+        super().__init__()
+
+        self.sock = socket.socket()
+        self.sock.connect((ip, port))
+        self.player = player
+
+    def send(self):
+        bytes_array = pickle.dumps(self.player)
+        self.sock.send(bytes_array)
+        self.recieve()
+        sleep(0.2)
+
+    def recieve(self):
+        while True:
+            data = self.sock.recv(SIZE_OF_PART)
+            another_player = pickle.loads(data)
+            self.sendPlayerObject.emit(another_player)
+            return another_player
+
+    def run(self):
+        while True:
+            self.send()
+
+    def change_player(self, x, y, clr):
+        self.player.x = x
+        self.player.y = y
+        self.player.clr = clr
+
 
 class PixelBattle(QMainWindow):
+
+    keyPressedSignal = pyqtSignal(object)
 
     def __init__(self):
         super().__init__()
@@ -23,30 +60,60 @@ class PixelBattle(QMainWindow):
         self.x = 0
         self.y = 0
         self.setWindowIcon(QIcon('icon_upper_left_corner.png'))
-        uic.loadUi('pixel_battle.ui', self)     # перетягивает все с шаблона, этот же шаблон,
-        # но в .py есть в pixel_battle_window.py
+        uic.loadUi('pixel_battle.ui', self)
+        self.player = Player(0, 0, 'white')
 
-        self.key_pressed_count = 0
-
-        self.create_grind()
+        self.init_gui()
         self.set_color()
+        self.colors = {
+                    'black': [0, 0, 0],
+                    'white': [255, 255, 255],
+                    'red': [255, 0, 0],
+                    'orange': [255, 165, 0],
+                    'yellow': [255, 255, 0],
+                    'green': [0, 255, 0],
+                    'cyan': [0, 255, 255],
+                    'blue': [0, 0, 255],
+                    'purple': [128, 0, 128]
+        }
+        self.btn_connect.clicked.connect(lambda: self.establish_connection())
+        self.push_color_btn()
+        self.save_btn_pushed()
+        self.show()
 
-    def create_grind(self):
-        self.under_the_btn = np.zeros(self.game_size, dtype=str)
+    def init_gui(self):
+
         self.btns = np.zeros(self.game_size, dtype=QPushButton)
-        self.open = np.zeros(self.game_size, dtype=bool)
-
         # создание сетки кнопок
         for i in range(self.game_size[0]):
             for j in range(self.game_size[1]):
                 btn = QPushButton('white', self.game_frame)
                 btn.setGeometry(i * 10, j * 10, 12, 12)
-                btn.clicked.connect(lambda state, obj=btn, x=i, y=j: self.button_pushed(obj, x, y))
+                btn.clicked.connect(lambda state, x=i, y=j: self.button_pushed(x, y))
                 btn.setStyleSheet("background-color: white; color: white;")
                 self.btns[i][j] = btn
-        self.show()
-        self.push_color_btn()
-        self.save_btn_pushed()
+
+    def establish_connection(self):
+        ip = self.field_ip.text()
+        port = int(self.field_port.text())
+
+        self.player_parallel = ParallelConnection(ip, port, self.player)
+        self.player_parallel.start()
+
+        self.player_parallel.sendPlayerObject.connect(self.player_draw)
+
+    def keyPressEvent(self, event):
+        self.keyPressedSignal.emit(event.key())
+
+    @pyqtSlot(object)
+    def player_draw(self, another_player):
+
+        x = another_player.x
+        y = another_player.y
+        clr = another_player.clr
+        self.btns[x][y].setText(f'{clr}')  # изменяется текст в "пикселе"
+        self.btns[x][y].setStyleSheet(f"background-color: {clr}; color: {clr}")
+        self.player_parallel.change_player(x, y, clr)
 
     def push_color_btn(self):
 
@@ -61,16 +128,13 @@ class PixelBattle(QMainWindow):
         self.black.clicked.connect(lambda: self.set_color(self.black.text()))
 
     def set_color(self, *args):
-        if args == ():  # проверяет есть ли в args что-нибудь, для случаев, когда игрок начал рисовть не выбрав цвет
+        if args == ():
             self.color = ['black']
         else:
             self.color = args
 
-    def button_pushed(self, obj, x, y):
-        clr = self.color[0]
-        self.btns[x][y].setText(f'{clr}')   # изменяется текст в "пикселе"
-        self.btns[x][y].setStyleSheet(f"background-color: {clr}; color: {clr}")
-
+    def button_pushed(self, x, y):
+        self.player_parallel.change_player(x, y, self.color[0])
 
     def save_btn_pushed(self):
         self.save_pic.clicked.connect(lambda: self.save_picture())
@@ -89,20 +153,9 @@ class PixelBattle(QMainWindow):
         image.save(f"{tm3}.jpg")
 
     def pix_color(self, pix):
-        colors = {
-                    'black': [0, 0, 0],
-                    'white': [255, 255, 255],
-                    'red': [255, 0, 0],
-                    'orange': [255, 165, 0],
-                    'yellow': [255, 255, 0],
-                    'green': [0, 255, 0],
-                    'cyan': [0, 255, 255],
-                    'blue': [0, 0, 255],
-                    'purple': [128, 0, 128]
-        }
-        for color in colors.keys():
+        for color in self.colors.keys():
             if pix == color:
-                pix_rgb = np.array(colors.get(pix), dtype=np.uint8)
+                pix_rgb = np.array(self.colors.get(pix), dtype=np.uint8)
                 return pix_rgb
 
 
